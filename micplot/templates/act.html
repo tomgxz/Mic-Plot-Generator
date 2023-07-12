@@ -73,6 +73,13 @@
 
 </section>
 
+<section class="container mb-2">
+
+    <a href="{% url 'micplot:act' show.id show.reducedname act.id %}?sortby=1" role="button" class="btn btn-outline-light">Sort By Mic Pack Number</a>
+    <a href="{% url 'micplot:act' show.id show.reducedname act.id %}?sortby=0" role="button" class="btn btn-outline-light">Sort By Mic Mixer Channel</a>
+
+</section>
+
 <section class="container">
 
     <a href="{% url 'micplot:newscene' show.id show.reducedname act.id %}" role="button" class="btn btn-outline-light">Add Scene</a>
@@ -80,6 +87,18 @@
     <a href="{% url 'micplot:newmic' show.id show.reducedname %}" role="button" class="btn btn-outline-light">Add Mic to Show</a>
     <a href="{% url 'micplot:show' show.id show.reducedname %}" role="button" class="btn btn-outline-light">Back to Show</a>
 
+</section>
+
+<section class="container mt-5">
+    <p>
+        Formatting: <br> <br>
+        Mic &lt;pack number&gt; / &lt;mixer channel&gt; <br> <br>
+        Speaking = bolder cell <br>
+        Non-Speaking but on-stage = muted cell <br>
+        Off-stage = blank cell <br>
+        Cells with text in must be one of the former two <br>
+        Cells without text must be off-stage <br>
+    </p>
 </section>
 
 {% endblock %}

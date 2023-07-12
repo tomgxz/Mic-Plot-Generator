@@ -42,7 +42,11 @@ def newact(request,show_id,show_name):
     return render(request,"act-new.html",{"show":showdict})
 
 def act(request,show_id,show_name,act_id):
-    showdict = verifyShow(show_id,show_name)
+    sortby = int(request.GET.get('sortby',0))
+    # 0 = sort by mixing desk
+    # 1 = sort by pack number
+
+    showdict = verifyShow(show_id,show_name,sortmicsby=sortby)
     actdict = verifyAct(show_id,show_name,act_id)
 
     maxn = 0
@@ -55,9 +59,12 @@ def act(request,show_id,show_name,act_id):
 
     micpos = []
 
-    for mp in MicPos.objects.all():
-        if mp.mic.show == showdict["original"] and mp.scene.act == actdict["original"]:
-            micpos.append(mp)
+    micssorted = Mic.objects.filter(show=showdict["original"]).order_by("packnumber" if sortby else "mixchannel")
+
+    for mic in micssorted:
+        for mp in MicPos.objects.all().filter(mic=mic):
+            if mp.mic.show == showdict["original"] and mp.scene.act == actdict["original"]:
+                micpos.append(mp)
 
     for mp in micpos:
         if mp.mic.packnumber <= len(starting):
@@ -128,8 +135,6 @@ def updateplot(request,show_id,show_name,act_id,mic_id,scene_id):
     try: speaking=request.POST.get("speaking")
     except: speaking=2 if len(actor) > 0 else 0
 
-    print(actor,speaking)
-
     showdict = verifyShow(show_id,show_name)
     actdict = verifyAct(show_id,show_name,act_id)
 
@@ -142,7 +147,6 @@ def updateplot(request,show_id,show_name,act_id,mic_id,scene_id):
         micposquery[0].actor = actor
         micposquery[0].speaking = speaking
         micposquery[0].save()
-        print(micposquery[0].speaking)
     else:
         newmicpos = MicPos(actor=actor,speaking=speaking,mic_id=mic_id,scene_id=scene_id)
         newmicpos.save()

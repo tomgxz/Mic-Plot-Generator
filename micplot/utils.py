@@ -3,9 +3,9 @@ from django.http import Http404
 from .models import Show,Act,Mic,Scene
 import re
 
-def verifyShow(show_id,show_name):
+def verifyShow(show_id,show_name,sortmicsby=0):
     show = get_object_or_404(Show,pk=show_id)
-    showdict = getShowDict(show)
+    showdict = getShowDict(show,sortmicsby=sortmicsby)
     if show_name != showdict["reducedname"]: raise Http404
     
     return showdict
@@ -37,12 +37,12 @@ def getMicDict(mic:Mic):
         "updated":mic.updated
     }
 
-def getShowDict(show:Show):
+def getShowDict(show:Show,sortmicsby=0):
     acts = Act.objects.filter(show=show)
     actsdicts = []
     for act in acts: actsdicts.append(getActDict(act))
 
-    mics = Mic.objects.filter(show=show)
+    mics = Mic.objects.filter(show=show).order_by("packnumber" if sortmicsby else "mixchannel")
     micsdicts = []
     for mic in mics: micsdicts.append(getMicDict(mic))
 

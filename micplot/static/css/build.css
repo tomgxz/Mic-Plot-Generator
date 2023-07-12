@@ -11619,10 +11619,10 @@ textarea.form-control-lg {
   white-space: nowrap;
 }
 .mic-plot-table table thead {
-  border: 2px solid currentColor;
+  border: 3px solid currentColor;
 }
 .mic-plot-table table thead th {
-  border-width: 2px;
+  border-width: 3px;
 }
 .mic-plot-table tr, .mic-plot-table th, .mic-plot-table td {
   border-color: white;
