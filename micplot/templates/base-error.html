@@ -1,0 +1,28 @@
+{% extends "base-generic.html" %}
+
+{%block title%}Favourite Books{%endblock%}
+
+{%block styleimports%}
+{% load static %}
+<link rel="stylesheet" href="/static/css/error.css"></link>
+{%endblock%}
+
+{% block breadcrumbs %}
+<li class="breadcrumb-item"><a tabindex="2" class="text-light" href="{% url 'portfolio:index' %}">Home</a></li>
+<li class="breadcrumb-item active text-light" aria-current="page">404</li>
+{% endblock %}
+
+{%block content%}
+
+
+<div class="d-flex align-items-center justify-content-center flex-row-reverse vh-100">
+    <div class="text-center row justify-content-center">
+        <h1 class="display-1"><strong>{%block errorname%}{%endblock%}</strong></h1>
+        <a class="text-decoration-none" href="{% url 'portfolio:index' %}"><h5>BACK HOME</h5></a>
+
+    </div>
+</div>
+{%endblock%}
+
+{%block scriptimports%}
+{%endblock%}

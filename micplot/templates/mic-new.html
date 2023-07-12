@@ -1,0 +1,41 @@
+{% extends 'base-generic.html' %}
+
+{% load static %}
+
+{%block tab-title%}{%block meta-title%}{%block apple-title%}{%block app-title%}{%block og-name-title%}{%block og-title%}{%block tw-card-title%}{%block tw-title%}Mic Plot Generator{%endblock%}{%endblock%}{%endblock%}{%endblock%}{%endblock%}{%endblock%}{%endblock%}{%endblock%}
+{% block site-desc %}{% block og-site-desc %}{% endblock %}{% block tw-site-desc %}{% endblock %}{% endblock %}
+{% block canonical-url %}{% block og-url %}{% block tw-url %}{% endblock %}{% endblock %}{% endblock %}
+
+{%block styleimports%}<link href="{% static 'css/build.css' %}" rel="stylesheet" type="text/css" />{%endblock%}
+
+{% block content %}
+
+<section class="container">   
+    <h1>New Mic for <a href="{% url 'micplot:show' show.id show.reducedname %}">{{show.name}}</a></h1>
+
+    <form class="needs-validation" method="POST">{% csrf_token %}
+
+        <div class="mb-3">
+            <label for="mic-pack-input" class="form-label">Mic Pack Number</label>
+            <input type="number" class="form-control bg-black" id="mic-pack-input" aria-describedby="mic-pack-input-help" name="mic-pack-input" placeholder="1" required>
+            <div class="valid-feedback">Looks good!</div>
+            <div class="invalid-feedback">Please enter a mic pack number</div>
+        </div>
+
+        <div class="mb-3">
+            <label for="mic-ch-input" class="form-label">Mixer Channel Number</label>
+            <input type="number" class="form-control bg-black" id="mic-ch-input" aria-describedby="mic-ch-input-help" name="mic-ch-input" placeholder="1" required>
+            <div class="valid-feedback">Looks good!</div>
+            <div class="invalid-feedback">Please enter a mixer channel number</div>
+        </div>
+
+        <button type="submit" class="btn btn-outline-light me-2">Create Mic</button> 
+        <a href="{% url 'micplot:show' show.id show.reducedname %}" role="button" class="btn btn-outline-light">Back to Show</a>
+    
+    </form>
+
+</section>
+
+{% endblock %}
+
+{%block scriptimports%}<script src="{% static 'js/index.js' %}"></script>{%endblock%}

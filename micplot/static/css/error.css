@@ -1,0 +1,46 @@
+body::before {
+    content:"";
+    position:absolute;
+    width:100vw;
+    height:100vh;
+    top:0;
+    left:0;
+	background-color:black;
+    background-image:url("/static/spaceBackground/tileable1.png");
+    background-size:cover;
+    z-index:1;
+}
+
+html,body {
+    height:100vh;
+    max-height:100vh;
+}
+
+h1 {
+    background: linear-gradient(to right,#7c70ffa3 50%,#ffffff3d 51%);
+    background-clip: text; 
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-size: 100%;
+    background-position-x: 0%;
+    /*color:#ffffff3d;*/
+    /*mix-blend-mode: overlay;*/
+    font-size:8vw;
+}
+
+::selection {
+    background:#7c70ff1c
+}
+
+h5 {
+    font-size:2vw!important;
+    color:#ffffff33;
+}
+
+div {
+    z-index:2;
+}
+
+a,h5 {
+    width:fit-content!important
+}

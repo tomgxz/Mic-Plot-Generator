@@ -1,0 +1,89 @@
+{% extends 'base-generic.html' %}
+
+{% load static %}
+
+{%block tab-title%}{%block meta-title%}{%block apple-title%}{%block app-title%}{%block og-name-title%}{%block og-title%}{%block tw-card-title%}{%block tw-title%}Mic Plot Generator{%endblock%}{%endblock%}{%endblock%}{%endblock%}{%endblock%}{%endblock%}{%endblock%}{%endblock%}
+{% block site-desc %}{% block og-site-desc %}{% endblock %}{% block tw-site-desc %}{% endblock %}{% endblock %}
+{% block canonical-url %}{% block og-url %}{% block tw-url %}{% endblock %}{% endblock %}{% endblock %}
+
+{% block metatags %}
+<meta name="show-id" content="{{show.id}}" />
+<meta name="act-id" content="{{act.id}}" />
+{% endblock %}
+
+{%block styleimports%}<link href="{% static 'css/build.css' %}" rel="stylesheet" type="text/css" />{%endblock%}
+
+{% block content %}
+
+<section class="container">
+    <h1>{{act.name}} (<a href="{% url 'micplot:show' show.id show.reducedname %}">{{show.name}}</a>)</h1>
+</section>
+
+<section class="mx-5 mic-plot-table">
+
+    {% if show.mics %}
+    {% if act.scenes %}
+
+    <div class="table-responsive">
+
+        <table class="table table-bordered">
+            <caption>{{act.name}}</caption>
+
+            <thead>
+                <tr>
+                  <th scope="col"><span class="text-uppercase">{{act.name}}</span></th>
+                  {% for mic in show.mics %}
+                  <th scope="col">Mic {{mic.pack}} / {{mic.channel}}</th>
+                  {% endfor %}
+                </tr>
+            </thead>
+
+            <tbody>
+                <tr>
+                    <th scope="row">Char</th>
+                    {% for mic in show.mics %}
+                    <td class="table-cell">
+                        <span class="table-cell-inner text-input-replace" id="table-cell-startingchar-mic{{mic.pack}}" data-mic="{{mic.id}}"><span class="text-muted">{% if startingmics %}{% for sm in startingmics %}{% if sm != None%}{% with packn=sm.mic.packnumber %}{% if packn == mic.pack %}{{sm.actor}}{% endif %}{% endwith %}{% endif %}{% endfor %}{% endif %}</span></span>
+                    </td>
+                    {% endfor %}
+                </tr>
+
+                {% for scene in act.scenes %}
+                <tr>
+                    <th scope="row">{{scene.number}}</th>
+                    {% for mic in show.mics %}
+                    <td class="table-cell editable {% if micpos %}{% for mp in micpos %}{% if mp.mic == mic.original and mp.scene == scene.original%}{% if mp.speaking == 2 %}speaking{%elif mp.speaking == 1 %}nonspeaking{%endif%}{% endif %}{% endfor %}{% endif %}">
+                        <span class="table-cell-inner text-input-replace" id="table-cell-scene{{scene.number}}-mic{{mic.pack}}" data-mic="{{mic.id}}" data-scene="{{scene.id}}">{% if micpos %}{% for mp in micpos %}{% if mp.mic == mic.original and mp.scene == scene.original%}{{mp.actor}}{% endif %}{% endfor %}{% endif %}</span>
+                    </td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+
+            </tbody>
+        </table>
+    </div>
+
+    {% else %}
+    <span class="d-block display-6 fs-5 mb-4">No scenes added to act</span>
+    {% endif %}
+    
+    {% else %}
+    <span class="d-block display-6 fs-5 mb-4">No mics added to show</span>
+    {% endif %}
+
+</section>
+
+<section class="container">
+
+    <a href="{% url 'micplot:newscene' show.id show.reducedname act.id %}" role="button" class="btn btn-outline-light">Add Scene</a>
+    <a href="{% url 'micplot:newscenemultiple' show.id show.reducedname act.id %}" role="button" class="btn btn-outline-light">Add Multiple Scenes</a>
+    <a href="{% url 'micplot:newmic' show.id show.reducedname %}" role="button" class="btn btn-outline-light">Add Mic to Show</a>
+    <a href="{% url 'micplot:show' show.id show.reducedname %}" role="button" class="btn btn-outline-light">Back to Show</a>
+
+</section>
+
+{% endblock %}
+
+{%block scriptimports%}
+
+<script src="{% static 'js/micplot.js' %}"></script>{%endblock%}

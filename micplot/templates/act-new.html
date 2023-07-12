@@ -1,0 +1,34 @@
+{% extends 'base-generic.html' %}
+
+{% load static %}
+
+{%block tab-title%}{%block meta-title%}{%block apple-title%}{%block app-title%}{%block og-name-title%}{%block og-title%}{%block tw-card-title%}{%block tw-title%}Mic Plot Generator{%endblock%}{%endblock%}{%endblock%}{%endblock%}{%endblock%}{%endblock%}{%endblock%}{%endblock%}
+{% block site-desc %}{% block og-site-desc %}{% endblock %}{% block tw-site-desc %}{% endblock %}{% endblock %}
+{% block canonical-url %}{% block og-url %}{% block tw-url %}{% endblock %}{% endblock %}{% endblock %}
+
+{%block styleimports%}<link href="{% static 'css/build.css' %}" rel="stylesheet" type="text/css" />{%endblock%}
+
+{% block content %}
+
+<section class="container">   
+    <h1>New Act for <a href="{% url 'micplot:show' show.id show.reducedname %}">{{show.name}}</a></h1>
+
+    <form class="needs-validation" method="POST">{% csrf_token %}
+
+        <div class="mb-3">
+            <label for="act-name-input" class="form-label">Name</label>
+            <input type="text" class="form-control bg-black" id="act-name-input" aria-describedby="act-name-input-help" name="act-name-input" placeholder="Act 1" required>
+            <div class="valid-feedback">Looks good!</div>
+            <div class="invalid-feedback">Please enter an act name</div>
+        </div>
+
+        <button type="submit" class="btn btn-outline-light me-2">Create Act</button> 
+        <a href="{% url 'micplot:show' show.id show.reducedname %}" role="button" class="btn btn-outline-light">Back to Show</a>
+    
+    </form>
+
+</section>
+
+{% endblock %}
+
+{%block scriptimports%}<script src="{% static 'js/index.js' %}"></script>{%endblock%}

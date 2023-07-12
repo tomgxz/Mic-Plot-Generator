@@ -1,0 +1,39 @@
+{% extends 'base-generic.html' %}
+
+{% load static %}
+
+{%block tab-title%}{%block meta-title%}{%block apple-title%}{%block app-title%}{%block og-name-title%}{%block og-title%}{%block tw-card-title%}{%block tw-title%}Mic Plot Generator{%endblock%}{%endblock%}{%endblock%}{%endblock%}{%endblock%}{%endblock%}{%endblock%}{%endblock%}
+{% block site-desc %}{% block og-site-desc %}{% endblock %}{% block tw-site-desc %}{% endblock %}{% endblock %}
+{% block canonical-url %}{% block og-url %}{% block tw-url %}{% endblock %}{% endblock %}{% endblock %}
+
+{%block styleimports%}<link href="{% static 'css/build.css' %}" rel="stylesheet" type="text/css" />{%endblock%}
+
+{% block content %}
+
+<section class="container">
+    <h1>New Show</h1>
+
+    <form class="needs-validation" method="POST">{% csrf_token %}
+
+        <div class="mb-3">
+            <label for="show-name-input" class="form-label">Name</label>
+            <input type="text" class="form-control bg-black" id="show-name-input" aria-describedby="show-name-input-help" name="show-name-input" required>
+            <div class="valid-feedback">Looks good!</div>
+            <div class="invalid-feedback">Please enter a show name</div>
+        </div>
+
+        <div class="mb-4">
+            <label for="show-date-input" class="form-label">Date</label>
+            <input type="date" class="form-control bg-black" id="show-date-input" aria-describedby="show-date-input-help" name="show-date-input" required>
+        </div>
+
+        <button type="submit" class="btn btn-outline-light me-2">Create Show</button> 
+        <a href="{% url 'micplot:index' %}" role="button" class="btn btn-outline-light">Back t+o Shows</a>
+    
+    </form>
+
+</section>
+
+{% endblock %}
+
+{%block scriptimports%}<script src="{% static 'js/index.js' %}"></script>{%endblock%}

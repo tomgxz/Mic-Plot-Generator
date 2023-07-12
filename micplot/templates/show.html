@@ -1,0 +1,42 @@
+{% extends 'base-generic.html' %}
+
+{% load static %}
+
+{%block tab-title%}{%block meta-title%}{%block apple-title%}{%block app-title%}{%block og-name-title%}{%block og-title%}{%block tw-card-title%}{%block tw-title%}Mic Plot Generator{%endblock%}{%endblock%}{%endblock%}{%endblock%}{%endblock%}{%endblock%}{%endblock%}{%endblock%}
+{% block site-desc %}{% block og-site-desc %}{% endblock %}{% block tw-site-desc %}{% endblock %}{% endblock %}
+{% block canonical-url %}{% block og-url %}{% block tw-url %}{% endblock %}{% endblock %}{% endblock %}
+
+{%block styleimports%}<link href="{% static 'css/build.css' %}" rel="stylesheet" type="text/css" />{%endblock%}
+
+{% block content %}
+
+<section class="container">
+    <h1>{{show.name}}</h1>
+
+    {% if show.acts %}
+    
+    <ul>
+        {% for act in show.acts %}
+        
+        <li>
+            <a href="{% url 'micplot:act' show.id show.reducedname act.id %}">{{act.name}}</a>
+        </li>
+
+        {% endfor %}
+    </ul>
+
+    {% else %}
+    
+    <span class="d-block display-6 fs-5 mb-4">No Acts</span>
+    
+    {% endif %} 
+
+    
+    <a href="{% url 'micplot:newact' show.id show.reducedname %}" role="button" class="btn btn-outline-light">Add Act</a>
+    <a href="{% url 'micplot:index' %}" role="button" class="btn btn-outline-light">All Shows</a>
+
+</section>
+
+{% endblock %}
+
+{%block scriptimports%}<script src="{% static 'js/index.js' %}"></script>{%endblock%}

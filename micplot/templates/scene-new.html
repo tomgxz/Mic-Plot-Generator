@@ -1,0 +1,34 @@
+{% extends 'base-generic.html' %}
+
+{% load static %}
+
+{%block tab-title%}{%block meta-title%}{%block apple-title%}{%block app-title%}{%block og-name-title%}{%block og-title%}{%block tw-card-title%}{%block tw-title%}Mic Plot Generator{%endblock%}{%endblock%}{%endblock%}{%endblock%}{%endblock%}{%endblock%}{%endblock%}{%endblock%}
+{% block site-desc %}{% block og-site-desc %}{% endblock %}{% block tw-site-desc %}{% endblock %}{% endblock %}
+{% block canonical-url %}{% block og-url %}{% block tw-url %}{% endblock %}{% endblock %}{% endblock %}
+
+{%block styleimports%}<link href="{% static 'css/build.css' %}" rel="stylesheet" type="text/css" />{%endblock%}
+
+{% block content %}
+
+<section class="container">   
+    <h1>New Scene for <a href="{% url 'micplot:act' show.id show.reducedname act.id %}">{{act.name}}</a> of <a href="{% url 'micplot:show' show.id show.reducedname %}">{{show.name}}</a></h1>
+
+    <form class="needs-validation" method="POST">{% csrf_token %}
+
+        <div class="mb-3">
+            <label for="scene-num-input" class="form-label">Scene Number</label>
+            <input type="number" class="form-control bg-black" id="scene-num-input" aria-describedby="scene-num-input-help" name="scene-num-input" placeholder="1" required>
+            <div class="valid-feedback">Looks good!</div>
+            <div class="invalid-feedback">Please enter a scene number</div>
+        </div>
+
+        <button type="submit" class="btn btn-outline-light me-2">Create Scene</button> 
+        <a href="{% url 'micplot:act' show.id show.reducedname act.id %}" role="button" class="btn btn-outline-light">Back to Act</a>
+    
+    </form>
+
+</section>
+
+{% endblock %}
+
+{%block scriptimports%}<script src="{% static 'js/index.js' %}"></script>{%endblock%}

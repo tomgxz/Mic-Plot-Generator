@@ -1,0 +1,100 @@
+@import "../bootstrap/scss/functions";
+
+$white: #fff;
+$dark: #000;
+$body-bg: #3b3b3b;
+
+//$light: #9cdde8;
+//$dark: #0a1331;
+//$primary: #503a73;
+//$secondary: #5e5da0;
+//$info: #009095;
+//$success: #009a5d;
+//$warning: #dcca00;
+//$danger: #e92500;
+
+$table-color:                 #fff;
+$table-bg:                    #0d0d0d;
+$table-cell-padding-y:        .25rem;
+
+@import "../bootstrap/scss/bootstrap";
+
+$carousel-transition-duration: 300ms;
+
+.mic-plot-table {
+
+    & table {
+        // MAKE DIFFERENT HOVER COLORS
+
+        --base:var(--bs-table-bg);
+        --base-hover:#2f2f2f;
+        --speaking:#3b3b3b;
+        --speaking-hover:#4e4e4e;
+        --nonspeaking:#2f2f2f;
+        --nonspeaking-hover:#3b3b3b;
+
+        text-wrap: nowrap;
+        white-space: nowrap;
+
+        & thead {
+            border:2px solid currentColor;
+
+            & th {
+                border-width:2px;
+            }
+        }
+
+    }
+
+    & tr,th,td {
+        border-color:white;
+    }
+
+    & .table-cell {
+        transition:background-color 100ms ease-in-out;
+
+        &.editable {
+            cursor:pointer;
+        }
+            
+        &.editable:hover {
+            background-color: var(--base-hover)!important;
+        }
+
+        &.editable.speaking {
+            background-color: var(--speaking)!important;
+
+            &.editable:hover {
+                background-color: var(--speaking-hover)!important;
+            }
+        }
+
+        &:empty {
+            background-color: var(--speaking)!important;
+
+            &:hover {
+                background-color: var(--speaking-hover)!important;
+            }
+        }
+
+        &.editable.nonspeaking {
+            background-color: var(--nonspeaking)!important;
+
+            &.editable:hover {
+                background-color: var(--nonspeaking-hover)!important;
+            }
+        }
+
+        & .text-input-replace-input {
+            outline:none!important;
+            border:none!important;
+            background-color:transparent!important;
+            color:inherit!important;
+            position:relative!important;
+            font-family:inherit!important;
+            min-width:64px!important;
+        }
+    }
+}
+
+

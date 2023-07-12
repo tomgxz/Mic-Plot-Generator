@@ -1,0 +1,36 @@
+
+.footer-text-gradient-slide {
+    background: linear-gradient(to right,var(--bs-gray-600) 50%,var(--bs-primary) 51%);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-size: 200%;
+    background-position-x: 0%;
+    
+}
+
+.footer-text-gradient-slide:hover {
+    background-position-x: -300%!important;
+}
+
+.main {
+    z-index: 3;
+    position: relative;
+}
+
+.footer {
+    z-index: 2;
+}
+
+.footer .image-clip {
+    clip-path: inset(0 100% 0 0);
+    transition: clip-path 180ms ease-in-out
+}
+
+.footer .image-clip-parent:hover .image-clip {
+    clip-path: inset(0 0 0 0)
+}
+
+.red-shift-primary {
+    filter: hue-rotate(214deg) brightness(1.8);
+}
