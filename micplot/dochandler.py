@@ -60,7 +60,14 @@ def set_cell_vertical_alignment(cell, align="center"):
         print(e)           
         return False
 
-def generateParamaters(showdict,actdict):
+def generateParamaters(showdict,actdict,sortby=0):
+    assert sortby in [0,1]
+
+    # sortby=0 -> mic mixer channel
+    # sortby=1 -> mic pack number
+
+    sortbytext = "packnumber" if sortby > 0 else "mixchannel"
+
     maxn = len(Mic.objects.filter(show=showdict["original"]))
 
     blankrow = [None for _ in range(maxn+1)]
@@ -70,8 +77,10 @@ def generateParamaters(showdict,actdict):
     micpos = []
     micmixmap = {}
 
-    micssorted = Mic.objects.filter(show=showdict["original"]).order_by("mixchannel")
-    for mic in enumerate(micssorted): micmixmap[str(mic[1].mixchannel)] = mic[0]
+    micssorted = Mic.objects.filter(show=showdict["original"]).order_by(sortbytext)
+    for mic in enumerate(micssorted): 
+        field = str(mic[1].packnumber if sortby > 0 else mic[1].mixchannel) 
+        micmixmap[field] = mic[0]
 
     for mic in micssorted:
         for mp in MicPos.objects.all().filter(mic=mic):
@@ -79,14 +88,15 @@ def generateParamaters(showdict,actdict):
                 micpos.append(mp)
 
     for mp in micpos:
-        if micmixmap[str(mp.mic.mixchannel)] <= len(starting):
-            if starting[micmixmap[str(mp.mic.mixchannel)]] is not None:
-                if mp.scene.number < starting[micmixmap[str(mp.mic.mixchannel)]].scene.number:
+        field = str(mp.mic.packnumber if sortby > 0 else mp.mic.mixchannel) 
+        if micmixmap[field] <= len(starting):
+            if starting[micmixmap[field]] is not None:
+                if mp.scene.number < starting[micmixmap[field]].scene.number:
                     if len(mp.actor) > 0:
-                        starting[micmixmap[str(mp.mic.mixchannel)]] = mp
+                        starting[micmixmap[field]] = mp
             else: 
                 if len(mp.actor) > 0:
-                    starting[micmixmap[str(mp.mic.mixchannel)]] = mp
+                    starting[micmixmap[field]] = mp
 
     for scene in enumerate(Scene.objects.filter(act=actdict["original"]).order_by("number")):
         scenes.append(blankrow.copy())
@@ -94,11 +104,12 @@ def generateParamaters(showdict,actdict):
 
         for mp in micpos:
             if mp.scene == scene[1] and mp.actor != "" and mp.actor is not None:
-                scenes[scene[0]][micmixmap[str(mp.mic.mixchannel)]+1] = mp
+                field = str(mp.mic.packnumber if sortby > 0 else mp.mic.mixchannel) 
+                scenes[scene[0]][micmixmap[field]+1] = mp
 
     records = [
-        ["Char",*list(map(lambda x: str(x.mixchannel),micssorted))],
-        ["ACT 1",*list(map(lambda x: starting[micmixmap[str(x.mixchannel)]].actor if starting[micmixmap[str(x.mixchannel)]].actor is not None else "",micssorted))],
+        ["Char",*list(map(lambda x: str(x.packnumber if sortby > 0 else x.mixchannel),micssorted))],
+        ["ACT 1",*list(map(lambda x: starting[micmixmap[str(x.packnumber if sortby > 0 else x.mixchannel)]].actor if starting[micmixmap[str(x.packnumber if sortby > 0 else x.mixchannel)]].actor is not None else "",micssorted))],
         *scenes,
     ]
 
@@ -128,79 +139,113 @@ def generateDocument(showdict):
 
     return document
 
-def createMicPlotDocument(show_id,show_name,act_id):
+def createMicPlotDocument(show_id,show_name):
 
     showdict = verifyShow(show_id,show_name,sortmicsby=0)
-    actdict = verifyAct(show_id,show_name,act_id)
-
-    records = generateParamaters(showdict,actdict)
     document = generateDocument(showdict)
 
-    p = document.add_paragraph(f"Mic plot for {actdict['name']} - SOUND DESK - ")
+    # create two copies in the document, one that sorts by mixer channel (0)
+    # and one that sorts by mic pack number (1)
+    for sortby in [0,1]:
 
-    table = document.add_table(len(records),len(records[0]))
-    table.style = 'Table Grid'
-    table.autofit = True
-    table.alignment = WD_TABLE_ALIGNMENT.LEFT
+        # generate a copy for each act
+        for actdict in showdict["acts"]:
 
-    for r in enumerate(records[0]):
-        c = table.cell(0,r[0])
-        c.paragraphs[0].add_run(str(r[1])).bold=True
+            # get the table data for the act, based on the sortby value
+            records = generateParamaters(showdict,actdict,sortby)
 
-        paragraph = c.paragraphs[0]
-        runs = paragraph.runs
-        for run in runs: run.font.size=Pt(7)
+            pagetitle = f"Mic plot for {actdict['name']} - SOUND DESK - "
+            if sortby > 0: pagetitle = f"Mic plot for {actdict['name']} - "
 
-        borderformat = {"sz": 16, "val": "single", "color": "#000000"} 
+            p = document.add_paragraph(pagetitle)
 
-        set_cell_border(
-            c,
-            top=borderformat,
-            bottom=borderformat,
-            start=borderformat,
-            end=borderformat,
-        )
+            # create table
+            table = document.add_table(len(records),len(records[0]))
+            table.style = 'Table Grid'
+            table.autofit = True
+            table.alignment = WD_TABLE_ALIGNMENT.LEFT
 
-    for row in enumerate(records):
-        if row[0] == 0: continue
+            # create header row with thicker border
+            for r in enumerate(records[0]):
+                # create cell and set text
+                c = table.cell(0,r[0])
+                c.paragraphs[0].add_run(str(r[1])).bold=True
 
-        for r in enumerate(row[1]):
-            c = table.cell(row[0],r[0])
-
-            if r[1] not in [None,""]:
-
-                if type(r[1]) == MicPos:
-                    c.text = str(r[1].actor)
-                    if r[1].speaking == 2:
-                        c._tc.get_or_add_tcPr().append(parse_xml(r'<w:shd {} w:fill="cccccc"/>'.format(nsdecls('w'))))
-                    elif r[1].speaking == 1:
-                        c._tc.get_or_add_tcPr().append(parse_xml(r'<w:shd {} w:fill="bcbcbc"/>'.format(nsdecls('w'))))
-
-                else:
-                    if r[0] == 0: c.paragraphs[0].add_run(str(r[1])).bold=True
-                    else: c.paragraphs[0].add_run(str(r[1]))
-
+                # set font size of cell
                 paragraph = c.paragraphs[0]
                 runs = paragraph.runs
                 for run in runs: run.font.size=Pt(7)
 
-            borderformat = {"sz": 6, "val": "single", "color": "#000000"}
+                borderformat = {"sz": 16, "val": "single", "color": "#000000"} 
 
-            set_cell_border(
-                c,
-                top=borderformat,
-                bottom=borderformat,
-                start=borderformat,
-                end=borderformat,
-            )
+                # set border to be thicker than others (16px)
+                set_cell_border(
+                    c,
+                    top=borderformat,
+                    bottom=borderformat,
+                    start=borderformat,
+                    end=borderformat,
+                )
 
-    for column in table.columns:
-        for cell in column.cells:
-            cell._tc.tcPr.tcW.type = 'auto'
-            set_cell_vertical_alignment(cell)
+            # create rows for each scene (and starting mics)
+            for row in enumerate(records):
+                # ignore first row (generated in the header)
+                if row[0] == 0: continue
 
-    for row in table.rows: row.height = Cm(.65)
+                # iterate through cells
+                for r in enumerate(row[1]):
+                    c = table.cell(row[0],r[0])
+
+                    # ensure the cell has content
+                    if r[1] not in [None,""]:
+
+                        # if it is a MicPos type (ie not a starting character cell)
+                        if type(r[1]) == MicPos:
+                            # set cell content to actor
+                            c.text = str(r[1].actor)
+
+                            # set cell background based on speaking type
+                            speakingxml = r'<w:shd {} w:fill="cccccc"/>'.format(nsdecls('w'))
+                            if r[1].speaking == 1: r'<w:shd {} w:fill="bcbcbc"/>'.format(nsdecls('w'))
+                            c._tc.get_or_add_tcPr().append(parse_xml(speakingxml))
+
+                        # if it is a string (ie a starting character cell)
+                        else:
+                            # set text to record content
+                            if r[0] == 0: c.paragraphs[0].add_run(str(r[1])).bold=True
+                            else: c.paragraphs[0].add_run(str(r[1]))
+
+                        # set cell font size
+                        paragraph = c.paragraphs[0]
+                        runs = paragraph.runs
+                        for run in runs: run.font.size=Pt(7)
+
+                    borderformat = {"sz": 6, "val": "single", "color": "#000000"}
+
+                    # set thin border (6px)
+                    set_cell_border(
+                        c,
+                        top=borderformat,
+                        bottom=borderformat,
+                        start=borderformat,
+                        end=borderformat,
+                    )
+
+            # set columns width to fit content & page
+            for column in table.columns:
+                for cell in column.cells:
+                    cell._tc.tcPr.tcW.type = 'auto'
+                    set_cell_vertical_alignment(cell)
+
+            # set row height
+            for row in table.rows: row.height = Cm(.65)
+
+            # add page break if not last act
+            if actdict != showdict["acts"][-1]: document.add_page_break()
+        
+        # add page break if not last sort function
+        if sortby != 1: document.add_page_break()
 
     return document
 
-createMicPlotDocument(2,"the_little_mermaid",2)
+createMicPlotDocument(2,"the_little_mermaid").save("demo.docx")
