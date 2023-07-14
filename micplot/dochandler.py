@@ -6,6 +6,9 @@ from docx.oxml import OxmlElement, parse_xml
 from docx.oxml.ns import qn, nsdecls
 from docx.oxml.shared import OxmlElement
 
+from msoffice2pdf import convert
+import pythoncom,os
+
 from .models import Mic,MicPos,Scene
 from .utils import verifyShow, verifyAct
 
@@ -202,7 +205,32 @@ def createMicPlotDocument(show_id,show_name):
                         # if it is a MicPos type (ie not a starting character cell)
                         if type(r[1]) == MicPos:
                             # set cell content to actor
-                            c.text = str(r[1].actor)
+                            if sortby != 1: c.text = str(r[1].actor)
+                            else:
+
+                                closest = float("inf")
+                                for next in MicPos.objects.filter(mic=r[1].mic):
+                                    if next.scene.number <= r[1].scene.number: continue
+                                    if next.scene.number < closest: closest = next.scene.number
+
+                                try:
+                                    next = MicPos.objects.filter(
+                                        mic=r[1].mic,
+                                        scene=Scene.objects.filter(act=actdict["original"],number=closest)[0]
+                                    )[0]
+
+                                    if next.actor != r[1].actor and next.actor not in [None,""]:
+                                        c.text = f"TO {next.actor}"
+
+                                except IndexError: # no micpos matching said query
+                                    pass
+
+                                except OverflowError: # closest still = infinity
+                                    pass
+
+                            # lookup next MicPos
+                            # if actor is not this actor
+                            # next cell needs to have that text
 
                             # set cell background based on speaking type
                             speakingxml = r'<w:shd {} w:fill="cccccc"/>'.format(nsdecls('w'))
@@ -248,4 +276,14 @@ def createMicPlotDocument(show_id,show_name):
 
     return document
 
-createMicPlotDocument(2,"the_little_mermaid").save("demo.docx")
+def fileToPDF(path):
+    output = convert(source=os.path.abspath("demo.docx"), output_dir=os.path.abspath("."), soft=0)
+    if os.path.isfile("demo.pdf"): os.remove("demo.pdf")
+    os.rename(output,"demo.pdf")
+
+def saveAsDOCX(document):
+    document.save("demo.docx")
+    return "demo.docx"
+
+pythoncom.CoInitialize()
+
