@@ -3,8 +3,12 @@
 replit.nix
 
 micplot/migrations/*
-# micplot/static/img/
+micplot/static/font/*
 bootstrap
+
+~$*.docx
+
+.vscode
 
 ### Django ###
 *.log
