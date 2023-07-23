@@ -72,10 +72,13 @@ window.onload = async () => {
             if (_.html().includes("<input") || selectionActive) { return }
             
             var content = _.text()
-            var width = _.width()
+            var width = getComputedStyle(e.currentTarget).width
             var id = _.attr("id")
 
-            _.html(`<input type="text" class="text-input-replace-input" name="${id}" id="${id}" cols=1 value="${content}" style="width:${width}px"></input>`)
+            e.currentTarget.style.width = width
+            _basic.style.width = width
+
+            _.html(`<input type="text" class="text-input-replace-input" name="${id}" id="${id}" cols=1 value="${content}" style="width:${width}!important;padding:0!important"></input>`)
 
             inputElement = $(_basic.querySelector(`#${id}`))
             inputElement.focus()
@@ -84,6 +87,8 @@ window.onload = async () => {
                 content = inputElement.val();
                 _.html("")
                 _.text(content)
+
+                _basic.parentNode.style.width = ""
                 
                 if (content != "") _.parent("").addClass("speaking")
                 else {
