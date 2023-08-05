@@ -78,6 +78,14 @@ def act(request,show_id,show_name,act_id):
 
     return render(request,"act.html",{"show":showdict,"act":actdict,"micpos":micpos,"startingmics":starting})
 
+def createNewMic(show,micpack,mixchannel):
+    newmic = Mic(show=show,packnumber=micpack,mixchannel=mixchannel)
+    newmic.save()
+
+def createNewScene(act,number):
+    newscene = Scene(act=act,number=number)
+    newscene.save()
+
 def newmic(request,show_id,show_name):
     showdict = verifyShow(show_id,show_name)
 
@@ -85,8 +93,7 @@ def newmic(request,show_id,show_name):
         micpack = request.POST.get("mic-pack-input")
         mixchannel = request.POST.get("mic-ch-input")
 
-        newmic = Mic(packnumber=micpack,mixchannel=mixchannel,show=showdict["original"])
-        newmic.save()
+        createNewMic(showdict["original"],micpack,mixchannel)
 
         return redirect("micplot:show",show_id,show_name)
 
@@ -99,8 +106,7 @@ def newscene(request,show_id,show_name,act_id):
     if request.method == "POST":
         scenenum = request.POST.get("scene-num-input")
 
-        newscene = Scene(number=scenenum,act=actdict["original"])
-        newscene.save()
+        createNewScene(actdict["original"],scenenum)
 
         return redirect("micplot:act",show_id,show_name,act_id)
 
@@ -123,7 +129,6 @@ def newscenemultiple(request,show_id,show_name,act_id):
         return redirect("micplot:act",show_id,show_name,act_id)
 
     return render(request,"scene-new-multiple.html",{"show":showdict,"act":actdict})
-
 
 def updateplot(request,show_id,show_name,act_id,mic_id,scene_id):
     assert request.method == "POST"
