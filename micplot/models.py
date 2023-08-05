@@ -38,7 +38,7 @@ class Scene(models.Model):
     created = models.DateTimeField(auto_now_add=True,editable=False)
     updated = models.DateTimeField(auto_now=True,editable=False)
 
-    def __str__(self): return f"Scene {self.number} in {self.act}"
+    def __str__(self): return f"Scene {self.number}"
 
 class MicPos(models.Model):
     mic = models.ForeignKey(Mic,on_delete=models.DO_NOTHING)
@@ -50,4 +50,6 @@ class MicPos(models.Model):
     created = models.DateTimeField(auto_now_add=True,editable=False)
     updated = models.DateTimeField(auto_now=True,editable=False)
 
-    def __str__(self): return f"Mic {self.mic} at {self.scene} in Show {self.mic.show}"
+    def __str__(self): 
+        #return "MP"
+        return f"Mic {self.mic} at {self.scene}"
