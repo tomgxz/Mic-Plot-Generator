@@ -79,12 +79,23 @@ def act(request,show_id,show_name,act_id):
     return render(request,"act.html",{"show":showdict,"act":actdict,"micpos":micpos,"startingmics":starting})
 
 def createNewMic(show,micpack,mixchannel):
-    newmic = Mic(show=show,packnumber=micpack,mixchannel=mixchannel)
-    newmic.save()
+    created = Mic(show=show,packnumber=micpack,mixchannel=mixchannel)
+    created.save()
+
+    for act in Act.objects.filter(show=show):
+        for scene in Scene.objects.filter(act=act):
+            if len(MicPos.objects.filter(mic_id=created.id,scene_id=scene.id)) == 0:
+                newmicpos = MicPos(actor="",speaking=0,mic_id=created.id,scene_id=scene.id)
+                newmicpos.save()
 
 def createNewScene(act,number):
-    newscene = Scene(act=act,number=number)
-    newscene.save()
+    created = Scene(act=act,number=number)
+    created.save()
+
+    for mic in Mic.objects.query(show=act.show):
+        if len(MicPos.objects.filter(mic_id=mic.id,scene_id=created.id)) == 0:
+            newmicpos = MicPos(actor="",speaking=0,mic_id=mic.id,scene_id=created.id)
+            newmicpos.save()
 
 def newmic(request,show_id,show_name):
     showdict = verifyShow(show_id,show_name)
@@ -123,8 +134,7 @@ def newscenemultiple(request,show_id,show_name,act_id):
         for i in range(start,start+count):
             if Scene.objects.filter(number=i,act=actdict["original"]): continue
 
-            newscene = Scene(number=i,act=actdict["original"])
-            newscene.save()
+            createNewScene(actdict["original"],i)
 
         return redirect("micplot:act",show_id,show_name,act_id)
 
@@ -149,10 +159,12 @@ def updateplot(request,show_id,show_name,act_id,mic_id,scene_id):
     micposquery = MicPos.objects.filter(mic_id=mic_id,scene_id=scene_id)
 
     if len(micposquery) > 0:
+        print("EDITING EXISTING MICPOS")
         micposquery[0].actor = actor
         micposquery[0].speaking = speaking
         micposquery[0].save()
     else:
+        print("CREATING NEW MICPOS")
         newmicpos = MicPos(actor=actor,speaking=speaking,mic_id=mic_id,scene_id=scene_id)
         newmicpos.save()
 
