@@ -3,6 +3,8 @@ from .models import Show,Act,Mic,Scene,MicPos
 from .utils import getShowDict, verifyShow, verifyAct
 from datetime import datetime
 
+from .dochandler import *
+
 def index(request):
     shows = Show.objects.order_by("date").reverse()
     output = []
