@@ -1,9 +1,10 @@
-from django.shortcuts import render,redirect
 from .models import Show,Act,Mic,Scene,MicPos
-from .utils import getShowDict, verifyShow, verifyAct
+from .utils import getShowDict, verifyShow, verifyAct, getReferrer, setReferrer, render, redirect
+from .localsettings import APP_NAME
+
 from datetime import datetime
 
-from .dochandler import *
+#from .dochandler import *
 
 def index(request):
     shows = Show.objects.order_by("date").reverse()
@@ -11,7 +12,7 @@ def index(request):
 
     for show in shows: output.append(getShowDict(show))
 
-    return render(request,"index.html",{"shows":output})
+    return render(request,"index.html",{"shows":output},referrer=f"{APP_NAME}:index")
 
 def newshow(request):
     if request.method == "POST":
@@ -23,12 +24,12 @@ def newshow(request):
         newshow = Show(name=showname,date=showdate)
         newshow.save()
 
-        return redirect("micplot:index")
+        return redirect(request,"micplot:index",referrer=f"{APP_NAME}:newshow")
 
-    return render(request,"show-new.html")
+    return render(request,"show-new.html",{},referrer=f"{APP_NAME}:newshow")
 
 def show(request,show_id,show_name):       
-    return render(request,"show.html",{"show":verifyShow(show_id,show_name)})
+    return render(request,"show.html",{"show":verifyShow(show_id,show_name)},referrer=f"{APP_NAME}:show")
 
 def newact(request,show_id,show_name):
     showdict = verifyShow(show_id,show_name)
@@ -39,9 +40,9 @@ def newact(request,show_id,show_name):
         newact = Act(name=actname,show=showdict["original"])
         newact.save()
 
-        return redirect("micplot:show",show_id,show_name)
+        return redirect(request,"micplot:show",show_id,show_name,referrer=f"{APP_NAME}:newact")
 
-    return render(request,"act-new.html",{"show":showdict})
+    return render(request,"act-new.html",{"show":showdict},referrer=f"{APP_NAME}:newact")
 
 def act(request,show_id,show_name,act_id):
     sortby = int(request.GET.get('sortby',0))
@@ -78,7 +79,7 @@ def act(request,show_id,show_name,act_id):
                 if len(mp.actor) > 0:
                     starting[mp.mic.packnumber] = mp
 
-    return render(request,"act.html",{"show":showdict,"act":actdict,"micpos":micpos,"startingmics":starting})
+    return render(request,"act.html",{"show":showdict,"act":actdict,"micpos":micpos,"startingmics":starting},referrer=f"{APP_NAME}:act")
 
 def createNewMic(show,micpack,mixchannel):
     created = Mic(show=show,packnumber=micpack,mixchannel=mixchannel)
@@ -94,7 +95,7 @@ def createNewScene(act,number):
     created = Scene(act=act,number=number)
     created.save()
 
-    for mic in Mic.objects.query(show=act.show):
+    for mic in Mic.objects.filter(show=act.show):
         if len(MicPos.objects.filter(mic_id=mic.id,scene_id=created.id)) == 0:
             newmicpos = MicPos(actor="",speaking=0,mic_id=mic.id,scene_id=created.id)
             newmicpos.save()
@@ -108,9 +109,9 @@ def newmic(request,show_id,show_name):
 
         createNewMic(showdict["original"],micpack,mixchannel)
 
-        return redirect("micplot:show",show_id,show_name)
+        return redirect(request,"micplot:show",show_id,show_name,referrer=f"{APP_NAME}:newmic")
 
-    return render(request,"mic-new.html",{"show":showdict})
+    return render(request,"mic-new.html",{"show":showdict},referrer=f"{APP_NAME}:newmic")
 
 def newscene(request,show_id,show_name,act_id):
     showdict = verifyShow(show_id,show_name)
@@ -121,9 +122,9 @@ def newscene(request,show_id,show_name,act_id):
 
         createNewScene(actdict["original"],scenenum)
 
-        return redirect("micplot:act",show_id,show_name,act_id)
+        return redirect(request,"micplot:act",show_id,show_name,act_id,referrer=f"{APP_NAME}:newscene")
 
-    return render(request,"scene-new.html",{"show":showdict,"act":actdict})
+    return render(request,"scene-new.html",{"show":showdict,"act":actdict},referrer=f"{APP_NAME}:newscene")
 
 def newscenemultiple(request,show_id,show_name,act_id):
     showdict = verifyShow(show_id,show_name)
@@ -138,9 +139,9 @@ def newscenemultiple(request,show_id,show_name,act_id):
 
             createNewScene(actdict["original"],i)
 
-        return redirect("micplot:act",show_id,show_name,act_id)
+        return redirect(request,"micplot:act",show_id,show_name,act_id,referrer=f"{APP_NAME}:newscenemultiple")
 
-    return render(request,"scene-new-multiple.html",{"show":showdict,"act":actdict})
+    return render(request,"scene-new-multiple.html",{"show":showdict,"act":actdict},referrer=f"{APP_NAME}:newscenemultiple")
 
 def updateplot(request,show_id,show_name,act_id,mic_id,scene_id):
     assert request.method == "POST"
@@ -170,4 +171,4 @@ def updateplot(request,show_id,show_name,act_id,mic_id,scene_id):
         newmicpos = MicPos(actor=actor,speaking=speaking,mic_id=mic_id,scene_id=scene_id)
         newmicpos.save()
 
-    return redirect("/")
+    return redirect(request,"/",referrer=f"{APP_NAME}:updateplot")
