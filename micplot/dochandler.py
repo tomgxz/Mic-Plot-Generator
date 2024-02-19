@@ -92,16 +92,16 @@ def generateParamaters(showdict:dict,actdict:dict,sortby=0,onlyshowchanges=1):
     sortbytext = "packnumber" if sortby > 0 else "mixchannel"
 
     # get mic count
-    maxn = len(Mic.objects.filter(show=showdict["original"]))
+    mic_count = len(Mic.objects.filter(show=showdict["original"]))
 
     # make a blank row template based on the mic count + 1 for the first column
-    blankrow = [None for _ in range(maxn+1)]
-    starting = blankrow.copy()
+    blankrow = [None for _ in range(mic_count+1)]
+    header_row = blankrow.copy()
 
     # create lists and dicts
     scenes = []
-    micpos = []
-    micmap = {}
+    mic_pos = []
+    mic_map = {}
 
     # get every mic sorted by packnumber or mixchannel (according to sortby)
     micssorted = Mic.objects.filter(show=showdict["original"]).order_by(sortbytext)
@@ -114,23 +114,23 @@ def generateParamaters(showdict:dict,actdict:dict,sortby=0,onlyshowchanges=1):
     
     for mic in enumerate(micssorted):
         micfield = getMicField(mic[1],sortby)
-        micmap[micfield] = mic[0]
+        mic_map[micfield] = mic[0]
 
     # for every mic, add all child micpos' in this act to micsorted
     for mic in micssorted:
         for mp in MicPos.objects.all().filter(mic=mic):
             if mp.mic.show == showdict["original"] and mp.scene.act == actdict["original"]:
-                micpos.append(mp)
+                mic_pos.append(mp)
 
     # for every micpos
-    for mp in micpos:
+    for mp in mic_pos:
         micfield = getMicField(mp.mic,sortby)
-        if micmap[micfield] <= len(starting):
-            if starting[micmap[micfield]] is not None and starting[micmap[micfield]]["micpos"] is not None:
-                if mp.scene.number < starting[micmap[micfield]]["micpos"].scene.number:
-                    if len(mp.actor) > 0: starting[micmap[micfield]] = {"text":mp.actor,"speaking":mp.speaking,"micpos":mp}
+        if mic_map[micfield] <= len(header_row):
+            if header_row[mic_map[micfield]] is not None and header_row[mic_map[micfield]]["micpos"] is not None:
+                if mp.scene.number < header_row[mic_map[micfield]]["micpos"].scene.number:
+                    if len(mp.actor) > 0: header_row[mic_map[micfield]] = {"text":mp.actor,"speaking":mp.speaking,"micpos":mp}
             else: 
-                if len(mp.actor) > 0: starting[micmap[micfield]] = {"text":mp.actor,"speaking":mp.speaking,"micpos":mp}
+                if len(mp.actor) > 0: header_row[mic_map[micfield]] = {"text":mp.actor,"speaking":mp.speaking,"micpos":mp}
 
     # if every actor name is shown
     if onlyshowchanges == 0:
@@ -139,10 +139,10 @@ def generateParamaters(showdict:dict,actdict:dict,sortby=0,onlyshowchanges=1):
             scenes.append(blankrow.copy())
             scenes[scene[0]][0] = scene[1].number
 
-            for mp in micpos:
+            for mp in mic_pos:
                 if mp.scene == scene[1] and mp.actor not in [None,""]:
                     micfield = getMicField(mp.mic,sortby)
-                    scenes[scene[0]][micmap[micfield]+1] = {"text":mp.actor,"speaking":mp.speaking,"micpos":mp}
+                    scenes[scene[0]][mic_map[micfield]+1] = {"text":mp.actor,"speaking":mp.speaking,"micpos":mp}
 
     # if only the mic changes are shown
     else:
@@ -163,11 +163,11 @@ def generateParamaters(showdict:dict,actdict:dict,sortby=0,onlyshowchanges=1):
             scenes[scene[0]][0] = scene[1].number
 
             # for every micpos that matches the current scene and has an actor
-            for mp in micpos:
+            for mp in mic_pos:
                 if mp.scene == scene[1] and mp.actor not in [None,""]:
                     # set the table data to be speaking, with no text
                     micfield = getMicField(mp.mic,sortby)
-                    scenes[scene[0]][micmap[micfield]+1] = {"text":"","speaking":2,"micpos":mp}
+                    scenes[scene[0]][mic_map[micfield]+1] = {"text":"","speaking":2,"micpos":mp}
 
             # if there is a previous scene
             if previousscene is not None:
@@ -278,7 +278,7 @@ def generateParamaters(showdict:dict,actdict:dict,sortby=0,onlyshowchanges=1):
                                                 cellContent = {"text":nextmicpos.actor,"speaking":0,"micpos":mp}
 
                     if cellContainsText:
-                        scenes[scene[0]][micmap[micfield]+1] = cellContent
+                        scenes[scene[0]][mic_map[micfield]+1] = cellContent
 
 
                     """
@@ -319,7 +319,7 @@ def generateParamaters(showdict:dict,actdict:dict,sortby=0,onlyshowchanges=1):
 
     records = [
         ["Char",*list(map(lambda x: str(x.packnumber if sortby > 0 else x.mixchannel),micssorted))],
-        ["ACT 1",*list(map(lambda x: starting[micmap[str(x.packnumber if sortby > 0 else x.mixchannel)]]["text"] if starting[micmap[str(x.packnumber if sortby > 0 else x.mixchannel)]]["text"] is not None else "",micssorted))],
+        ["ACT 1",*list(map(lambda x: header_row[mic_map[str(x.packnumber if sortby > 0 else x.mixchannel)]]["text"] if header_row[mic_map[str(x.packnumber if sortby > 0 else x.mixchannel)]]["text"] is not None else "",micssorted))],
         *scenes,
     ]
 

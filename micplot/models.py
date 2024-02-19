@@ -51,5 +51,5 @@ class MicPos(models.Model):
     updated = models.DateTimeField(auto_now=True,editable=False)
 
     def __str__(self): 
-        #return "MP"
+        return "MP"
         return f"Mic {self.mic} at {self.scene}"
