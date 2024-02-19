@@ -52,13 +52,13 @@ def act(request,show_id,show_name,act_id):
     showdict = verifyShow(show_id,show_name,sortmicsby=sortby)
     actdict = verifyAct(show_id,show_name,act_id)
 
-    maxn = 0
+    column_count = 0  # get the amount of mics for this show
 
     for mic in Mic.objects.filter(show=showdict["original"]):
-        if mic.packnumber > maxn:
-            maxn = mic.packnumber
+        if mic.packnumber > column_count:
+            column_count = mic.packnumber
 
-    starting = [None for _ in range(maxn+1)]
+    starting = [None for _ in range(column_count+1)] # create an empty list, representing a row
 
     micpos = []
 
