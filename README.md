@@ -71,11 +71,11 @@ C:\...\MicPlot>py -m venv .venv
 
 C:\...\MicPlot>env.bat
 
+C:\...\MicPlot>.venv\Scripts\activate.bat
+
 ```
 
 ```console
-
-C:\...\MicPlot>.venv\Scripts\activate.bat
 
 (.venv) C:\...\MicPlot>setup_p2.bat
 
