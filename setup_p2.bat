@@ -1,6 +1,4 @@
-py -m venv .venv
-env.bat
-pip install -r requirements.txt
+py -m pip install -r requirements.txt
 echo SECRETKEY='INSECURE-CHANGE' >> .env
 py -m manage makemigrations micplot
 py -m manage sqlmigrate micplot 0001

@@ -8,11 +8,15 @@ A Django-based web application to render mic plots.
 
 NOTE: when running any commands, you need to make sure to have the virtual environment enabled by first running `env.bat` (the venv is created when running `setup.bat`, see below). To make this easier, open terminal and navigate to the root directory, then type in `env.bat` to load the environment, and subsequently run any other batch files the same way.
 
-To setup the environment, run `setup.bat`, or open terminal and run the following commands
+To setup the environment, run `setup_p1.bat`, or open terminal and run the following commands
 ```console
 py -m venv .venv
 env.bat
-pip install -r requirements.txt
+```
+
+Then run `setup_p2.bat`, or open terminal and run the following commands
+```console
+py -m pip install -r requirements.txt
 echo SECRETKEY='INSECURE-CHANGE' >> .env
 py -m manage makemigrations micplot
 py -m manage sqlmigrate micplot 0001
@@ -61,8 +65,17 @@ For website hosting, I'd recommend using [railway.app](https://railway.app/) and
 
 ```console
 
-```
 
-```console
+
+
+
+
+
+
+
+
+
+
+
 
 ```
