@@ -1,0 +1,1 @@
+sass ".\micplot\static\scss\theme.scss" ".\micplot\static\css\build.css"
